@@ -1,0 +1,19 @@
+version: "29.1.13"
+
+script-runner:
+  build: ./script-runner
+  volumes:
+    - data-volume:/data
+  depends_on:
+    - sqlite-db
+
+metabase:
+  image: metabase/metabase:latest
+  ports:
+    - "8080:80"
+  environment:
+    MB_DB_FILE: /data/metabase.db
+  volumes:
+    - data-volume:/data
+  depends_on:
+    - sqlite-db

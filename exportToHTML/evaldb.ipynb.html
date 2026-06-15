@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>evaldb.ipynb</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #bcbec4;}
+.s1 { color: #cf8e6d;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+.s4 { color: #7a7e85;}
+.ls0 { height: 1px; border-width: 0; color: #43454a; background-color:#43454a}
+</style>
+</head>
+<body bgcolor="#191a1c">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+evaldb.ipynb</font>
+</center></td></tr></table>
+<pre><span class="s0">#%% md 
+</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1">import </span><span class="s0">sqlite3</span>
+<span class="s1">import </span><span class="s0">pandas </span><span class="s1">as </span><span class="s0">pd</span><hr class="ls0"><span class="s0">#%% md 
+Changement des données csv <hr class="ls0">#%% 
+df_sales </span><span class="s2">= </span><span class="s0">pd</span><span class="s2">.</span><span class="s0">read_excel</span><span class="s2">(</span><span class="s3">r&quot;\evaluationDE\data.sqlite\sales.xlsx&quot;</span><span class="s2">)</span>
+<span class="s4">#df_sales.head()</span><hr class="ls0"><span class="s0">#%% md 
+</span><hr class="ls0"><span class="s0">#%% 
+df_stores </span><span class="s2">= </span><span class="s0">pd</span><span class="s2">.</span><span class="s0">read_excel</span><span class="s2">(</span><span class="s3">r&quot;\evaluationDE\data.sqlite\stores.xlsx&quot;</span><span class="s2">)</span>
+<span class="s4">#df_stores.head()</span><hr class="ls0"><span class="s0">#%% 
+df_products </span><span class="s2">= </span><span class="s0">pd</span><span class="s2">.</span><span class="s0">read_excel</span><span class="s2">(</span><span class="s3">r&quot;\evaluationDE\data.sqlite\products.xlsx&quot;</span><span class="s2">)</span>
+<span class="s4">#df_products.head()</span><hr class="ls0"><span class="s0">#%% md 
+Connect sqlite3 <hr class="ls0">#%% 
+conn </span><span class="s2">= </span><span class="s0">sqlite3</span><span class="s2">.</span><span class="s0">connect</span><span class="s2">(</span><span class="s3">&quot;sales.db&quot;</span><span class="s2">)</span><hr class="ls0"><span class="s0">#%% 
+df_sales</span><span class="s2">.</span><span class="s0">to_sql</span><span class="s2">(</span><span class="s3">&quot;sales&quot;</span><span class="s2">, </span><span class="s0">conn</span><span class="s2">, </span><span class="s0">if_exists</span><span class="s2">=</span><span class="s3">&quot;replace&quot;</span><span class="s2">, </span><span class="s0">index</span><span class="s2">=</span><span class="s1">False</span><span class="s2">)</span>
+<span class="s0">df_products</span><span class="s2">.</span><span class="s0">to_sql</span><span class="s2">(</span><span class="s3">&quot;products&quot;</span><span class="s2">, </span><span class="s0">conn</span><span class="s2">, </span><span class="s0">if_exists</span><span class="s2">=</span><span class="s3">&quot;replace&quot;</span><span class="s2">, </span><span class="s0">index</span><span class="s2">=</span><span class="s1">False</span><span class="s2">)</span>
+<span class="s0">df_stores</span><span class="s2">.</span><span class="s0">to_sql</span><span class="s2">(</span><span class="s3">&quot;stores&quot;</span><span class="s2">, </span><span class="s0">conn</span><span class="s2">, </span><span class="s0">if_exists</span><span class="s2">=</span><span class="s3">&quot;replace&quot;</span><span class="s2">, </span><span class="s0">index</span><span class="s2">=</span><span class="s1">False</span><span class="s2">)</span>
+
+<span class="s0">conn</span><span class="s2">.</span><span class="s0">commit</span><span class="s2">()</span>
+<span class="s0">conn</span><span class="s2">.</span><span class="s0">close</span><span class="s2">()</span>
+
+<span class="s0">print</span><span class="s2">(</span><span class="s3">&quot;Données insérées avec succès dans SQLite.&quot;</span><span class="s2">)</span></pre>
+</body>
+</html>
