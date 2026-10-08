@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Python pour analyse des Ventes de la PME</title>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#f6f8fa; --panel:#ffffff; --ink:#1b2430; --muted:#5b6776; --line:#d8dee6;
+  --accent:#1f6f8b; --code-bg:#0f1c27; --code-ink:#e3edf5; --kw:#7cc4e0; --str:#a8d89a; --com:#7b8d9c; --ok:#2e7d4f;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e141b; --panel:#151e28; --ink:#e6edf3; --muted:#9aa8b6; --line:#27333f; --accent:#6bbbd6; --code-bg:#0a1118; --ok:#6fcf97;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e141b; --panel:#151e28; --ink:#e6edf3; --muted:#9aa8b6; --line:#27333f; --accent:#6bbbd6; --code-bg:#0a1118; --ok:#6fcf97;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:40px 20px 64px}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 8px}
+.lede{color:var(--muted);margin:0 0 32px;max-width:60ch}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 36px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:8px;font-size:.95rem}
+.flow span.f{padding:2px 8px;border:1px solid var(--line);border-radius:4px;font-family:ui-monospace,Consolas,monospace;font-size:.85rem}
+.flow .sep{color:var(--muted)}
+section{margin:0 0 28px}
+h2{font-size:1.1rem;margin:0 0 10px;color:var(--accent)}
+.code{margin:0;padding:14px 16px;background:var(--code-bg);color:var(--code-ink);border-radius:8px;overflow-x:auto;font:.85rem/1.55 ui-monospace,Consolas,Menlo,monospace}
+.code .k{color:var(--kw)} .code .s{color:var(--str)} .code .c{color:var(--com)}
+.out{margin:8px 0 0;padding:10px 16px;border-left:3px solid var(--ok);background:var(--panel);font:.85rem ui-monospace,Consolas,monospace;color:var(--ok);border-radius:0 6px 6px 0}
+.note{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+</style>
+</head>
+<body>
+<main>
+  <h1>Python pour analyse des Ventes de la PME</h1>
+  <p class="lede">This script reads three Excel files, loads them as three tables in a local SQLite database, then lists the tables to confirm the load.</p>
+
+  <div class="flow" aria-label="Data flow">
+    <span class="f">sales.xlsx</span><span class="f">stores.xlsx</span><span class="f">products.xlsx</span>
+    <span class="sep">become</span>
+    <span class="f">sales.db</span>
+    <span class="sep">with tables</span>
+    <span class="f">sales</span><span class="f">stores</span><span class="f">products</span>
+  </div>
+
+  <section>
+    <h2>Imports</h2>
+<pre class="code"><span class="k">import</span> sqlite3
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+<span class="k">import</span> pandas <span class="k">as</span> pd
+
+DATA = Path(__file__).parent / <span class="s">"data"</span></pre>
+  </section>
+
+  <section>
+    <h2>Chargement des fichiers Excel</h2>
+<pre class="code"><span class="k">def</span> data_loader():
+    path = r<span class="s">"data\sales.db"</span>
+    df = []
+    files = [<span class="s">"sales"</span>, <span class="s">"stores"</span>, <span class="s">"products"</span>]
+    <span class="k">for</span> file <span class="k">in</span> files:
+        df.append(pd.read_excel(rf<span class="s">"data\{file}.xlsx"</span>))
+
+    <span class="k">return</span> df
+
+df_sales, df_stores, df_products = data_loader()</pre>
+  </section>
+
+  <section>
+    <h2>Écriture dans SQLite</h2>
+<pre class="code">conn = sqlite3.connect(Path(__file__).parent / <span class="s">"sales.db"</span>)
+<span class="k">try</span>:
+    df_sales.to_sql(<span class="s">"sales"</span>, conn, if_exists=<span class="s">"replace"</span>, index=<span class="k">False</span>)
+    df_products.to_sql(<span class="s">"products"</span>, conn, if_exists=<span class="s">"replace"</span>, index=<span class="k">False</span>)
+    df_stores.to_sql(<span class="s">"stores"</span>, conn, if_exists=<span class="s">"replace"</span>, index=<span class="k">False</span>)
+<span class="k">finally</span>:
+    conn.close()
+
+<span class="k">print</span>(<span class="s">"Données insérées avec succès dans SQLite."</span>)</pre>
+    <div class="out">Données insérées avec succès dans SQLite.</div>
+  </section>
+
+  <section>
+    <h2>Vérification des tables</h2>
+<pre class="code">conn = sqlite3.connect(<span class="s">"sales.db"</span>)
+<span class="k">print</span>(pd.read_sql(<span class="s">"SELECT name FROM sqlite_master WHERE type='table'"</span>, conn))
+conn.close()</pre>
+    <div class="out" style="white-space:pre">Expected output:
+       name
+0     sales
+1  products
+2    stores</div>
+  </section>
+
+  <p class="note">This page shows the script and its expected output. It does not run Python or read your Excel files: run the script on your own machine, where the <code>data</code> folder is available. It is a .py script, because <code>__file__</code> is not defined inside a notebook.</p>
+</main>
+</body>
+</html>
